@@ -62,6 +62,8 @@ local add_project_to_list = function(path)
 end
 
 -- Create a new project based on current cwd only and add it 
+M.add_project_to_list = add_project_to_list
+
 -- to the list in the `telescope_projects_file`
 M.add_project_cwd = function()
   local path = vim.loop.cwd()
