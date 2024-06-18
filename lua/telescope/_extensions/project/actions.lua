@@ -78,20 +78,28 @@ end
 
 -- Rename the selected project within the `telescope_projects_file`.
 M.rename_project = function(prompt_bufnr)
-  local selected_path = M.get_selected_path(prompt_bufnr)
-  local selected_title = M.get_selected_title(prompt_bufnr)
-  local new_title = vim.fn.input('Rename ' ..selected_title.. ' to: ', selected_title)
-  local projects = _utils.get_project_objects()
+	local selected_path = M.get_selected_path(prompt_bufnr)
+	local selected_title = M.get_selected_title(prompt_bufnr)
+	vim.ui.input(
+		{ prompt = ("Rename project %s to"):format(selected_title), default = selected_title },
+		function(new_title)
+			if new_title == "" or new_title == nil then
+				return
+			end
+			local projects = _utils.get_project_objects()
 
-  local file = io.open(_utils.telescope_projects_file, "w")
-  for _, project in pairs(projects) do
-    if project.path == selected_path then
-      project.title = new_title
-    end
-    _utils.store_project(file, project)
-  end
+			local file = io.open(_utils.telescope_projects_file, "w")
+			for _, project in pairs(projects) do
+				if project.path == selected_path then
+					project.title = new_title
+				end
+				_utils.store_project(file, project)
+			end
 
-  io.close(file)
+			io.close(file)
+			actions.close(prompt_bufnr)
+		end
+	)
 end
 
 -- Change the selected projects workspace within the `telescope_projects_file`.
