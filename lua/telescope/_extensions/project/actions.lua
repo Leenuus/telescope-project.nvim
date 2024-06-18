@@ -1,7 +1,7 @@
 local builtin = require("telescope.builtin")
 local actions = require("telescope.actions")
 local actions_state = require("telescope.actions.state")
-local transform_mod = require('telescope.actions.mt').transform_mod
+local transform_mod = require("telescope.actions.mt").transform_mod
 
 local _git = require("telescope._extensions.project.git")
 local _utils = require("telescope._extensions.project.utils")
@@ -25,7 +25,7 @@ local cd_scope_map = {
 -- Update prompt title with current cd scope
 local update_prompt_title = function(prompt_bufnr, cd_scope)
   local current_picker = actions_state.get_current_picker(prompt_bufnr)
-  current_picker.prompt_border:change_title('Select a project ' .. '(' .. cd_scope .. ')')
+  current_picker.prompt_border:change_title("Select a project " .. "(" .. cd_scope .. ")")
 end
 
 -- Extracts project title from current buffer selection
@@ -37,7 +37,6 @@ end
 M.get_selected_path = function(prompt_bufnr)
   return actions_state.get_selected_entry(prompt_bufnr).value
 end
-
 
 local add_project_to_list = function(path)
   local projects = _utils.get_project_objects()
@@ -58,12 +57,12 @@ local add_project_to_list = function(path)
   end
 
   io.close(file)
-  print('Project added: ' .. path)
+  print("Project added: " .. path)
 end
 
--- Create a new project based on current cwd only and add it 
 M.add_project_to_list = add_project_to_list
 
+-- Create a new project based on current cwd only and add it
 -- to the list in the `telescope_projects_file`
 M.add_project_cwd = function()
   local path = vim.loop.cwd()
@@ -78,47 +77,46 @@ end
 
 -- Rename the selected project within the `telescope_projects_file`.
 M.rename_project = function(prompt_bufnr)
-	local selected_path = M.get_selected_path(prompt_bufnr)
-	local selected_title = M.get_selected_title(prompt_bufnr)
-	vim.ui.input(
-		{ prompt = ("Rename project %s to"):format(selected_title), default = selected_title },
-		function(new_title)
-			if new_title == "" or new_title == nil then
-				return
-			end
-			local projects = _utils.get_project_objects()
+  local selected_path = M.get_selected_path(prompt_bufnr)
+  local selected_title = M.get_selected_title(prompt_bufnr)
+  vim.ui.input(
+    { prompt = ("Rename project %s to"):format(selected_title), default = selected_title },
+    function(new_title)
+      if new_title == "" or new_title == nil then
+        return
+      end
+      local projects = _utils.get_project_objects()
 
-			local file = io.open(_utils.telescope_projects_file, "w")
-			for _, project in pairs(projects) do
-				if project.path == selected_path then
-					project.title = new_title
-				end
-				_utils.store_project(file, project)
-			end
+      local file = io.open(_utils.telescope_projects_file, "w")
+      for _, project in pairs(projects) do
+        if project.path == selected_path then
+          project.title = new_title
+        end
+        _utils.store_project(file, project)
+      end
 
-			io.close(file)
-			actions.close(prompt_bufnr)
-		end
-	)
+      io.close(file)
+      actions.close(prompt_bufnr)
+    end
+  )
 end
 
 -- Change the selected projects workspace within the `telescope_projects_file`.
 M.change_workspace = function(prompt_bufnr)
   local selected_path = M.get_selected_path(prompt_bufnr)
   local projects = _utils.get_project_objects()
-  local new_workspace = vim.fn.input('Move project to workspace: ')
+  local new_workspace = vim.fn.input("Move project to workspace: ")
 
   local file = io.open(_utils.telescope_projects_file, "w")
   for _, project in pairs(projects) do
     if project.path == selected_path then
-      project.workspace = 'w' .. new_workspace
+      project.workspace = "w" .. new_workspace
     end
     _utils.store_project(file, project)
   end
 
   io.close(file)
 end
-
 
 -- Delete (deactivate) the selected project from the `telescope_projects_file`
 M.delete_project = function(prompt_bufnr)
@@ -134,7 +132,7 @@ M.delete_project = function(prompt_bufnr)
   end
 
   io.close(file)
-  print('Project deleted: ' .. selected_path)
+  print("Project deleted: " .. selected_path)
 end
 
 -- Find files within the selected project using the
@@ -145,7 +143,7 @@ M.find_project_files = function(prompt_bufnr, hidden_files)
   local cd_successful = _utils.change_project_dir(project_path, cd_scope)
   if cd_successful then
     vim.schedule(function()
-      builtin.find_files({cwd = project_path, hidden = hidden_files})
+      builtin.find_files({ cwd = project_path, hidden = hidden_files })
     end)
   end
 end
@@ -155,7 +153,11 @@ end
 M.browse_project_files = function(prompt_bufnr)
   local ok, file_browser = pcall(require, "telescope._extensions.file_browser")
   if not ok then
-    vim.notify( "telescope-file-browser.nvim is required to use this action!", vim.log.levels.ERROR, { title = "telescope-project.nvim" })
+    vim.notify(
+      "telescope-file-browser.nvim is required to use this action!",
+      vim.log.levels.ERROR,
+      { title = "telescope-project.nvim" }
+    )
     return
   end
   local project_path = M.get_selected_path(prompt_bufnr)
@@ -176,7 +178,7 @@ M.search_in_project_files = function(prompt_bufnr)
   local cd_successful = _utils.change_project_dir(project_path, "lcd")
   if cd_successful then
     vim.schedule(function()
-      builtin.live_grep({cwd = project_path})
+      builtin.live_grep({ cwd = project_path })
     end)
   end
 end
@@ -189,7 +191,7 @@ M.recent_project_files = function(prompt_bufnr)
   local cd_successful = _utils.change_project_dir(project_path, "lcd")
   if cd_successful then
     vim.schedule(function()
-      builtin.oldfiles({cwd_only = true})
+      builtin.oldfiles({ cwd_only = true })
     end)
   end
 end
